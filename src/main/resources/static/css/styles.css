@@ -1,0 +1,100 @@
+:root {
+    --one: #780000;
+    --two: #c1121f;
+    --three: #fdf0d5;
+    --four: #003049;
+    --five: #669bbc;
+
+    --non-mobile: 769px;
+
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: var(--three)
+}
+body {
+    & #document-page {
+        min-height: 100vh;
+        background-color: var(--four);
+        padding: 4em 0;
+
+        & #document {
+          border-radius: 0.2em;
+          padding: 1em;
+          background-color: var(--five);
+          width: 90%;
+          margin: 0 auto;
+          min-height: 50em;
+          display: flex;
+          flex-direction: column;
+          gap: 1em;
+
+          @media (min-width: var(--non-mobile)) {
+            width: 60%;
+            min-height: 100em;
+          }
+
+          & #title {
+            font-size: clamp(1.43rem, 1.55vw, 2.5rem);
+            font-weight: bold;
+          }
+
+          & #content {
+
+          }
+        }
+    }
+}
+
+/* 1. Use a more-intuitive box-sizing model */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 2. Remove default margin */
+* {
+  margin: 0;
+}
+
+/* 3. Enable keyword animations */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
+}
+
+body {
+  /* 4. Add accessible line-height */
+  line-height: 1.5;
+  /* 5. Improve text rendering */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 6. Improve media defaults */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 7. Inherit fonts for form controls */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* 8. Avoid text overflows */
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* 9. Improve line wrapping */
+p {
+  text-wrap: pretty;
+}
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+/*
+  10. Create a root stacking context
+*/
+#root, #__next {
+  isolation: isolate;
+}
