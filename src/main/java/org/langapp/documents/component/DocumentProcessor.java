@@ -16,8 +16,7 @@ public class DocumentProcessor {
     public List<Unit> convertToUnits(ConversionDetails details) {
         Objects.requireNonNull(details);
         var splitContent = details.content().split(" ");
-        var stringUtil = new StringUtil();
-        var gatherers = new DocumentGatherers(stringUtil);
+        var gatherers = new DocumentGatherers();
         return Arrays.stream(splitContent)
                 .flatMap(wordUnit -> wordUnit.contains("\n") ?
                         Arrays.stream((wordUnit.substring(0, wordUnit.lastIndexOf("\n")) + " " + wordUnit.substring(wordUnit.lastIndexOf("\n"))).split(" ")) :

@@ -22,8 +22,8 @@ final public class DocumentGatherers {
 
     private final StringUtil stringUtil;
 
-    public DocumentGatherers(StringUtil stringUtil) {
-        this.stringUtil = stringUtil;
+    public DocumentGatherers() {
+        this.stringUtil = new StringUtil();
     }
 
     public interface WordMapperState {
