@@ -4,7 +4,6 @@ import org.langapp.documents.dto.processor.*;
 import org.langapp.documents.dto.processor.conversionStrategy.NoSelection;
 import org.langapp.documents.dto.processor.conversionStrategy.PhraseSelection;
 import org.langapp.documents.dto.processor.conversionStrategy.WordSelection;
-import org.langapp.string.StringUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,9 +14,9 @@ public class DocumentProcessor {
 
     public List<Unit> convertToUnits(ConversionDetails details) {
         Objects.requireNonNull(details);
-        var splitContent = details.content().split(" ");
-        var gatherers = new DocumentGatherers();
-        return Arrays.stream(splitContent)
+        var spaceSeparatedContent = details.content().split(" ");
+        var gatherers = new ProcessorGatherers();
+        return Arrays.stream(spaceSeparatedContent)
                 .flatMap(wordUnit -> wordUnit.contains("\n") ?
                         Arrays.stream((wordUnit.substring(0, wordUnit.lastIndexOf("\n")) + " " + wordUnit.substring(wordUnit.lastIndexOf("\n"))).split(" ")) :
                         Stream.of(wordUnit))
