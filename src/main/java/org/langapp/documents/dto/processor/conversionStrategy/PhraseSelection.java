@@ -1,4 +1,11 @@
 package org.langapp.documents.dto.processor.conversionStrategy;
 
-public record PhraseSelection() implements SelectionStrategy {
+import java.util.Objects;
+
+public record PhraseSelection(int startId,
+                              int endId,
+                              String rawContent) implements SelectionStrategy {
+    public PhraseSelection {
+        Objects.requireNonNull(rawContent);
+    }
 }

@@ -24,7 +24,6 @@ final public class ProcessorGatherers {
         AtomicInteger idStore();
         StringUtil stringUtil();
     }
-
     public Gatherer<String, WordMapperState, Word> mapWords(Map<String, Translation> translatedPhrases) {
         Supplier<WordMapperState> accumulator = () -> new WordMapperState() {
             @Override
@@ -45,7 +44,6 @@ final public class ProcessorGatherers {
                 return new StringUtil();
             }
         };
-
         Gatherer.Integrator<WordMapperState, String, Word> integrator = Gatherer.Integrator.of((state, wordStr, downstream) -> {
             var unit = (Word)(state.isPhrasePart().test(state.stringUtil().normalized(wordStr)) ?
                     new PhrasePart(state.idStore().getAndIncrement(), wordStr) :
@@ -60,7 +58,6 @@ final public class ProcessorGatherers {
         ArrayList<Word> buffer();
         StringUtil stringUtil();
     }
-
     public Gatherer<Word, PhraseAllocationState, Unit> allocatePhrases(Map<String, Translation> translatedPhrases) {
         Supplier<PhraseAllocationState> accumulator = () -> new PhraseAllocationState() {
             @Override
@@ -97,7 +94,7 @@ final public class ProcessorGatherers {
                             .map(Unit::rawContent)
                             .toList());
                     var size = state.buffer().size();
-                    var phrase = new Phrase(id, size, rawContent, phraseTranslation);
+                    var phrase = new TranslatedPhrase(id, size, rawContent, phraseTranslation);
                     downstream.push(phrase);
                     state.buffer().clear();
                 }
@@ -149,19 +146,59 @@ final public class ProcessorGatherers {
         );
         return Gatherer.ofSequential(integrator);
     }
+
     public interface SelectedPhraseAllocationState {
         ArrayList<Word> buffer();
+        StringUtil stringUtil();
     }
-
     public Gatherer<Unit, SelectedPhraseAllocationState, Unit> allocateSelectedPhrase(PhraseSelection details) {
         Objects.requireNonNull(details);
         Supplier<SelectedPhraseAllocationState> accumulator = () -> new SelectedPhraseAllocationState() {
             @Override
             public ArrayList<Word> buffer() {
-                return null;
+                return new ArrayList<>();
+            }
+
+            @Override
+            public StringUtil stringUtil() {
+                return new StringUtil();
             }
         };
         Gatherer.Integrator<SelectedPhraseAllocationState, Unit, Unit> integrator = Gatherer.Integrator.of((state, element, downstream) -> {
+            switch (element) {
+                case Phrase phrase -> {
+                    return phrase.id() == details.startId() ?
+                            downstream.push(new SelectedPhrase(phrase.id(), phrase.rawContent())) :
+                            downstream.push(phrase);
+                }
+                case Word word -> {
+                    var selectedPhraseValue = state.stringUtil().normalized(details.rawContent());
+                    var isSelectedPhrasePart = details.rawContent().contains(word.rawContent());
+                    if(isSelectedPhrasePart) {
+                        state.buffer().add(word);
+                        var bufferValue = String.join(" ", state.buffer().stream()
+                                .map(_unit -> state.stringUtil().normalized(_unit.rawContent()))
+                                .toList());
+                        if(bufferValue.equals(selectedPhraseValue)) {
+                            var id = state.buffer().getFirst().id();
+                            var rawContent = String.join(" ", state.buffer().stream()
+                                    .map(Unit::rawContent)
+                                    .toList());
+                            var size = state.buffer().size();
+                            var phrase = word.id() == details.endId() ?
+                                    new SelectedPhrase(id, rawContent) :
+                                    new NewPhrase(id, size, rawContent);
+                            downstream.push(phrase);
+                            state.buffer().clear();
+                        }
+                    }
+                    else {
+                        state.buffer().forEach(downstream::push);
+                        downstream.push(word);
+                        state.buffer().clear();
+                    }
+                }
+            }
             return downstream.push(element);
         });
         return Gatherer.ofSequential(accumulator, integrator);
