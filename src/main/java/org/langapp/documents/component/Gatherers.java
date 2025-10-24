@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Gatherer;
+import java.util.stream.IntStream;
 
 final public class Gatherers {
 
@@ -124,6 +125,9 @@ final public class Gatherers {
         public boolean isSelectedPhrasePart(String phraseValue, String wordValue) {
             return phraseValue.contains(wordValue);
         }
+        public boolean inRange(int wordId, IntStream range) {
+            return range.anyMatch(id -> id == wordId);
+        }
     }
     public Gatherer<Unit, SelectedPhraseAllocationState, Unit> allocateSelectedPhrase(PhraseSelection details) {
         Objects.requireNonNull(details);
@@ -136,30 +140,44 @@ final public class Gatherers {
                             downstream.push(phrase);
                 }
                 case Word word -> {
-                    var selectedPhraseValue = state.stringUtil().normalized(details.rawContent());
-                    boolean isSelectedPhrasePart = state.isSelectedPhrasePart(selectedPhraseValue, word.rawContent());
-                    if(isSelectedPhrasePart) {
+                    if(state.inRange(word.id(), IntStream.range(details.startId(), details.endId()))) {
                         state.buffer().add(word);
-                        var bufferValue = String.join(" ", state.buffer().stream()
-                                .map(_unit -> state.stringUtil().normalized(_unit.rawContent()))
-                                .toList());
-                        if(bufferValue.equals(selectedPhraseValue)) {
+                        if(state.buffer().size() == details.endId() - details.startId() + 1) {
                             var id = state.buffer().getFirst().id();
                             var rawContent = String.join(" ", state.buffer().stream()
                                     .map(Unit::rawContent)
                                     .toList());
-                            var size = state.buffer().size();
-                            var phrase = (Unit) (id == details.startId() ?
-                                    new SelectedPhrase(id, rawContent) :
-                                    new NewPhrase(id, size, rawContent));
+                            var phrase = (Unit) (new SelectedPhrase(id, rawContent));
                             downstream.push(phrase);
                             state.buffer().clear();
                         }
                     }
                     else {
-                        state.buffer().forEach(downstream::push);
-                        downstream.push(word);
-                        state.buffer().clear();
+                        var selectedPhraseValue = state.stringUtil().normalized(details.rawContent());
+                        boolean isSelectedPhrasePart = state.isSelectedPhrasePart(selectedPhraseValue, word.rawContent());
+                        if(isSelectedPhrasePart) {
+                            state.buffer().add(word);
+                            var bufferValue = String.join(" ", state.buffer().stream()
+                                    .map(_unit -> state.stringUtil().normalized(_unit.rawContent()))
+                                    .toList());
+                            if(bufferValue.equals(selectedPhraseValue)) {
+                                var id = state.buffer().getFirst().id();
+                                var rawContent = String.join(" ", state.buffer().stream()
+                                        .map(Unit::rawContent)
+                                        .toList());
+                                var size = state.buffer().size();
+                                var phrase = (Unit) (id == details.startId() ?
+                                        new SelectedPhrase(id, rawContent) :
+                                        new NewPhrase(id, size, rawContent));
+                                downstream.push(phrase);
+                                state.buffer().clear();
+                            }
+                        }
+                        else {
+                            state.buffer().forEach(downstream::push);
+                            downstream.push(word);
+                            state.buffer().clear();
+                        }
                     }
                 }
             }

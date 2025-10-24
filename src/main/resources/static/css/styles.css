@@ -54,28 +54,28 @@ body {
                     padding: 0 0.15em;
                     background-color: var(--one);
                     border: 0.1em solid var(--five);
-                    border-radius: 0.25em;
+                    border-radius: 0.3em;
                     cursor: pointer;
                 }
                 & .translated-word {
                     padding: 0 0.15em;
                     background-color: var(--bgc);
                     border: 0.1em solid var(--five);
-                    border-radius: 0.25em;
+                    border-radius: 0.3em;
                     cursor: pointer;
                 }
                 & .selected-word {
                     padding: 0 0.15em;
                     background-color: var(--four);
                     border: 0.1em solid var(--five);
-                    border-radius: 0.25em;
+                    border-radius: 0.3em;
                     cursor: pointer;
                 }
                 & .invalid-word {
                     padding: 0 0.15em;
                     background-color: var(--five);
                     border: 0.1em solid var(--five);
-                    border-radius: 0.25em;
+                    border-radius: 0.3em;
                     cursor: default;
                     pointer-events: none;
                     user-select: none;
@@ -84,22 +84,25 @@ body {
                     padding: 0 0.15em;
                     background-color: var(--one);
                     border: 0.1em solid var(--five);
-                    border-radius: 0.25em;
+                    border-radius: 0.3em;
                     cursor: pointer;
+                    user-select: none;
                 }
                 & .translated-phrase {
                     padding: 0 0.15em;
                     background-color: attr(data-bgc type(*));
                     border: 0.1em solid var(--two);
-                    border-radius: 0.25em;
+                    border-radius: 0.3em;
                     cursor: pointer;
+                    user-select: none;
                 }
                 & .selected-phrase {
                     padding: 0 0.15em;
                     background-color: var(--four);
                     border: 0.1em solid var(--five);
-                    border-radius: 0.25em;
+                    border-radius: 0.3em;
                     cursor: pointer;
+                    user-select: none;
                 }
             }
           }
