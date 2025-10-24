@@ -8,4 +8,9 @@ public record NewPhrase(int id,
     public NewPhrase {
         Objects.requireNonNull(rawContent);
     }
+
+    @Override
+    public Unit withId(int id) {
+        return new NewPhrase(id, size, rawContent);
+    }
 }

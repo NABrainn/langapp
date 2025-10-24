@@ -1,26 +1,28 @@
 package org.langapp.documents.component;
 
 import org.langapp.documents.dto.processor.*;
-import org.langapp.documents.dto.processor.conversionStrategy.NoSelection;
-import org.langapp.documents.dto.processor.conversionStrategy.PhraseSelection;
-import org.langapp.documents.dto.processor.conversionStrategy.WordSelection;
+import org.langapp.documents.dto.processor.selection.NoSelection;
+import org.langapp.documents.dto.processor.selection.PhraseSelection;
+import org.langapp.documents.dto.processor.selection.WordSelection;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class DocumentProcessor {
+public class Processor {
 
-    public List<Unit> convertToUnits(ConversionDetails details) {
+    public List<Paragraph> convertToUnits(ConversionDetails details) {
         Objects.requireNonNull(details);
         var spaceSeparatedContent = details.content().split(" ");
-        var gatherers = new ProcessorGatherers();
+        var gatherers = new Gatherers();
+        var collectors = new Collectors();
         return Arrays.stream(spaceSeparatedContent)
-                .flatMap(wordUnit -> wordUnit.contains("\n") ?
-                        Arrays.stream((wordUnit.substring(0, wordUnit.lastIndexOf("\n")) + " " + wordUnit.substring(wordUnit.lastIndexOf("\n"))).split(" ")) :
-                        Stream.of(wordUnit))
+                .flatMap(wordText -> wordText.contains("\n") ?
+                        Arrays.stream((wordText.substring(0, wordText.lastIndexOf("\n") + 1) + " " + wordText.substring(wordText.lastIndexOf("\n") + 1)).split(" ")) :
+                        Stream.of(wordText))
                 .gather(gatherers.mapWords(details.translatedPhrases()))
+                .peek(System.out::println)
                 .gather(gatherers.allocatePhrases(details.translatedPhrases()))
                 .gather(gatherers.mapWordTranslations(details.translatedWords()))
                 .gather(switch (details.selectionStrategy()){
@@ -28,6 +30,7 @@ public class DocumentProcessor {
                     case PhraseSelection phraseSelection -> gatherers.allocateSelectedPhrase(phraseSelection);
                     case WordSelection wordSelection -> gatherers.allocateSelectedWord(wordSelection);
                 })
-                .toList();
+                .gather(gatherers.cleanupIds())
+                .collect(collectors.toParagraphs());
     }
 }

@@ -38,7 +38,9 @@ body {
           }
 
           & #content {
-            
+            & .paragraph {
+                margin-bottom: attr(data-size rem)
+            }
           }
         }
     }

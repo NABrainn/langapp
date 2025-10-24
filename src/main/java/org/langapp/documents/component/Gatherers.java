@@ -1,8 +1,8 @@
 package org.langapp.documents.component;
 
 import org.langapp.documents.dto.processor.*;
-import org.langapp.documents.dto.processor.conversionStrategy.PhraseSelection;
-import org.langapp.documents.dto.processor.conversionStrategy.WordSelection;
+import org.langapp.documents.dto.processor.selection.PhraseSelection;
+import org.langapp.documents.dto.processor.selection.WordSelection;
 import org.langapp.string.StringUtil;
 import org.langapp.translations.dto.Translation;
 
@@ -12,80 +12,52 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Gatherer;
 
-final public class ProcessorGatherers {
+final public class Gatherers {
 
-    public interface WordMapperState {
-        Predicate<String> isPhrasePart();
-        AtomicInteger idStore();
-        StringUtil stringUtil();
+    public record WordMapperState(AtomicInteger atomicInteger,
+                                  StringUtil stringUtil,
+                                  Map<String, Translation> translatedPhrases) {
+        boolean isPhrasePart(String word) {
+            return translatedPhrases.values().stream()
+                    .anyMatch(phrase -> phrase
+                            .fromLangDetails().content()
+                            .contains(word));
+        }
     }
     public Gatherer<String, WordMapperState, Word> mapWords(Map<String, Translation> translatedPhrases) {
-        Supplier<WordMapperState> accumulator = () -> new WordMapperState() {
-            @Override
-            public Predicate<String> isPhrasePart() {
-                return (word) -> translatedPhrases.values().stream()
-                        .anyMatch(phrase -> phrase
-                                .fromLangDetails().content()
-                                .contains(word));
-            }
-
-            @Override
-            public AtomicInteger idStore() {
-                return new AtomicInteger(0);
-            }
-
-            @Override
-            public StringUtil stringUtil() {
-                return new StringUtil();
-            }
-        };
+        Supplier<WordMapperState> accumulator = () -> new WordMapperState(new AtomicInteger(), new StringUtil(), translatedPhrases);
         Gatherer.Integrator<WordMapperState, String, Word> integrator = Gatherer.Integrator.of((state, wordStr, downstream) -> {
-            var unit = (Word)(state.isPhrasePart().test(state.stringUtil().normalized(wordStr)) ?
-                    new PhrasePart(state.idStore().getAndIncrement(), wordStr) :
-                    new Standalone(state.idStore().getAndIncrement(), wordStr));
+            var unit = (Word)(state.isPhrasePart(state.stringUtil().normalized(wordStr)) ?
+                    new PhrasePart(state.atomicInteger().getAndIncrement(), wordStr) :
+                    new Standalone(state.atomicInteger().getAndIncrement(), wordStr));
             return downstream.push(unit);
         });
         return Gatherer.ofSequential(accumulator, integrator);
     }
 
-    public interface PhraseAllocationState {
-        Function<String, Optional<Translation>> phraseExtractor(Map<String, Translation> translatedPhrases);
-        ArrayList<Word> buffer();
-        StringUtil stringUtil();
+    public record PhraseAllocationState(Map<String, Translation> translatedPhrases,
+                                        ArrayList<Word> buffer,
+                                        StringUtil stringUtil) {
+        Optional<Translation> extractPhrase(String phraseValue) {
+            return translatedPhrases.values().stream()
+                    .filter(translation -> translation.fromLangDetails().content()
+                            .trim()
+                            .equalsIgnoreCase(phraseValue))
+                    .findFirst();
+        }
     }
     public Gatherer<Word, PhraseAllocationState, Unit> allocatePhrases(Map<String, Translation> translatedPhrases) {
-        Supplier<PhraseAllocationState> accumulator = () -> new PhraseAllocationState() {
-            @Override
-            public Function<String, Optional<Translation>> phraseExtractor(Map<String, Translation> translatedPhrases) {
-                return (value) -> translatedPhrases.values().stream()
-                        .filter(translation -> translation.fromLangDetails().content()
-                                .trim()
-                                .equalsIgnoreCase(value))
-                        .findFirst();
-            }
-
-            @Override
-            public ArrayList<Word> buffer() {
-                return new ArrayList<>();
-            }
-
-            @Override
-            public StringUtil stringUtil() {
-                return new StringUtil();
-            }
-        };
+        Supplier<PhraseAllocationState> accumulator = () -> new PhraseAllocationState(translatedPhrases, new ArrayList<>(), new StringUtil());
         Gatherer.Integrator<PhraseAllocationState, Word, Unit> integrator = Gatherer.Integrator.of((state, unit, downstream) -> {
-            if(unit instanceof PhrasePart phrasePartWord) {
-                state.buffer().add(phrasePartWord);
+            if(unit instanceof PhrasePart part) {
+                state.buffer().add(part);
                 var bufferValue = String.join(" ", state.buffer().stream()
                         .map(_unit -> state.stringUtil().normalized(_unit.rawContent()))
                         .toList());
-                var optPhrase = state.phraseExtractor(translatedPhrases).apply(bufferValue);
+                var optPhrase = state.extractPhrase(bufferValue);
                 if(optPhrase.isPresent()) {
                     var phraseTranslation = optPhrase.get();
 
@@ -104,33 +76,25 @@ final public class ProcessorGatherers {
                 downstream.push(unit);
                 state.buffer().clear();
             }
-            return downstream.push(unit);
+            return !downstream.isRejecting();
         });
         BiConsumer<PhraseAllocationState, Gatherer.Downstream<? super Unit>> finisher = (state, downstream) ->
                 state.buffer().forEach(downstream::push);
         return Gatherer.ofSequential(accumulator, integrator, finisher);
     }
 
-    public interface WordTranslationsState {
-        Function<String, Optional<Translation>> translationExtractor();
-        StringUtil stringUtil();
+    public record WordTranslationsState(Map<String, Translation> translatedWords,
+                                        StringUtil stringUtil) {
+        public Optional<Translation> extractTranslation(String wordValue) {
+            return Optional.ofNullable(translatedWords.get(wordValue));
+        }
     }
     public Gatherer<Unit, WordTranslationsState, Unit> mapWordTranslations(Map<String, Translation> translatedWords) {
-        Supplier<WordTranslationsState> accumulator = () -> new WordTranslationsState() {
-            @Override
-            public Function<String, Optional<Translation>> translationExtractor() {
-                return (word) -> Optional.ofNullable(translatedWords.get(word));
-            }
-
-            @Override
-            public StringUtil stringUtil() {
-                return new StringUtil();
-            }
-        };
+        Supplier<WordTranslationsState> accumulator = () -> new WordTranslationsState(translatedWords, new StringUtil());
         Gatherer.Integrator<WordTranslationsState, Unit, Unit> integrator = Gatherer.Integrator.of((state, unit, downstream) ->
                 downstream.push(switch (unit) {
                     case Phrase phrase -> phrase;
-                    case Word word -> state.translationExtractor().apply(state.stringUtil().normalized(word.rawContent()))
+                    case Word word -> state.extractTranslation(state.stringUtil().normalized(word.rawContent()))
                             .map(translation -> (Unit) new TranslatedWord(word.id(), word.rawContent(), translation))
                             .orElse(new NewWord(word.id(), word.rawContent()));
                 }));
@@ -147,23 +111,11 @@ final public class ProcessorGatherers {
         return Gatherer.ofSequential(integrator);
     }
 
-    public interface SelectedPhraseAllocationState {
-        ArrayList<Word> buffer();
-        StringUtil stringUtil();
-    }
+    public record SelectedPhraseAllocationState(ArrayList<Word> buffer,
+                                                StringUtil stringUtil) {}
     public Gatherer<Unit, SelectedPhraseAllocationState, Unit> allocateSelectedPhrase(PhraseSelection details) {
         Objects.requireNonNull(details);
-        Supplier<SelectedPhraseAllocationState> accumulator = () -> new SelectedPhraseAllocationState() {
-            @Override
-            public ArrayList<Word> buffer() {
-                return new ArrayList<>();
-            }
-
-            @Override
-            public StringUtil stringUtil() {
-                return new StringUtil();
-            }
-        };
+        Supplier<SelectedPhraseAllocationState> accumulator = () -> new SelectedPhraseAllocationState(new ArrayList<>(), new StringUtil());
         Gatherer.Integrator<SelectedPhraseAllocationState, Unit, Unit> integrator = Gatherer.Integrator.of((state, element, downstream) -> {
             switch (element) {
                 case Phrase phrase -> {
@@ -185,9 +137,9 @@ final public class ProcessorGatherers {
                                     .map(Unit::rawContent)
                                     .toList());
                             var size = state.buffer().size();
-                            var phrase = word.id() == details.endId() ?
+                            var phrase = (Unit) (word.id() == details.endId() ?
                                     new SelectedPhrase(id, rawContent) :
-                                    new NewPhrase(id, size, rawContent);
+                                    new NewPhrase(id, size, rawContent));
                             downstream.push(phrase);
                             state.buffer().clear();
                         }
@@ -199,13 +151,23 @@ final public class ProcessorGatherers {
                     }
                 }
             }
-            return downstream.push(element);
+            return !downstream.isRejecting();
         });
         return Gatherer.ofSequential(accumulator, integrator);
     }
 
     public Gatherer<Unit, ?, Unit> doNothing() {
-        Gatherer.Integrator<Void, Unit, Unit> integrator = Gatherer.Integrator.of((_, element, downstream) -> downstream.push(element));
+        Gatherer.Integrator<Void, Unit, Unit> integrator = Gatherer.Integrator.of((_, element, downstream) ->
+                downstream.push(element));
         return Gatherer.ofSequential(integrator);
+    }
+
+    public Gatherer<Unit, AtomicInteger, Unit> cleanupIds() {
+        Supplier<AtomicInteger> idStore = () -> new AtomicInteger(0);
+        Gatherer.Integrator<AtomicInteger, Unit, Unit> integrator = Gatherer.Integrator.of((state, element, downstream) ->
+                element.id() - state.get() != 1 ?
+                    downstream.push(element.withId(state.getAndIncrement())) :
+                    downstream.push(element));
+        return Gatherer.ofSequential(idStore, integrator);
     }
 }

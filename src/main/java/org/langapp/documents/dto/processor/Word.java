@@ -5,5 +5,6 @@ public sealed interface Word
         permits
         NewWord, TranslatedWord,
         PhrasePart, Standalone,
-        SelectedWord, BackgroundWord{
+        SelectedWord{
+
 }

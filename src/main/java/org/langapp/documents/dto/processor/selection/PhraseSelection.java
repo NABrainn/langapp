@@ -1,4 +1,4 @@
-package org.langapp.documents.dto.processor.conversionStrategy;
+package org.langapp.documents.dto.processor.selection;
 
 import java.util.Objects;
 

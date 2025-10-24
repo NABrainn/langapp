@@ -7,4 +7,9 @@ public record PhrasePart(int id,
     public PhrasePart {
         Objects.requireNonNull(rawContent);
     }
+
+    @Override
+    public Word withId(int id) {
+        return new PhrasePart(id, rawContent);
+    }
 }

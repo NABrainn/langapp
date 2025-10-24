@@ -10,4 +10,9 @@ public record TranslatedWord(int id,
     public TranslatedWord {
         Objects.requireNonNull(rawContent);
     }
+
+    @Override
+    public Word withId(int id) {
+        return new TranslatedWord(id, rawContent, translation);
+    }
 }

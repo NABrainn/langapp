@@ -1,6 +1,6 @@
 package org.langapp.documents.dto.processor;
 
-import org.langapp.documents.dto.processor.conversionStrategy.SelectionStrategy;
+import org.langapp.documents.dto.processor.selection.SelectionStrategy;
 import org.langapp.translations.dto.Translation;
 
 import java.util.Map;
