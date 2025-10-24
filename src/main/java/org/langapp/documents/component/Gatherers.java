@@ -112,7 +112,11 @@ final public class Gatherers {
     }
 
     public record SelectedPhraseAllocationState(ArrayList<Word> buffer,
-                                                StringUtil stringUtil) {}
+                                                StringUtil stringUtil) {
+        public boolean isSelectedPhrasePart(String phraseValue, String wordValue) {
+            return phraseValue.contains(wordValue);
+        }
+    }
     public Gatherer<Unit, SelectedPhraseAllocationState, Unit> allocateSelectedPhrase(PhraseSelection details) {
         Objects.requireNonNull(details);
         Supplier<SelectedPhraseAllocationState> accumulator = () -> new SelectedPhraseAllocationState(new ArrayList<>(), new StringUtil());
@@ -125,7 +129,7 @@ final public class Gatherers {
                 }
                 case Word word -> {
                     var selectedPhraseValue = state.stringUtil().normalized(details.rawContent());
-                    var isSelectedPhrasePart = details.rawContent().contains(word.rawContent());
+                    boolean isSelectedPhrasePart = state.isSelectedPhrasePart(selectedPhraseValue, word.rawContent());
                     if(isSelectedPhrasePart) {
                         state.buffer().add(word);
                         var bufferValue = String.join(" ", state.buffer().stream()
@@ -137,7 +141,7 @@ final public class Gatherers {
                                     .map(Unit::rawContent)
                                     .toList());
                             var size = state.buffer().size();
-                            var phrase = (Unit) (word.id() == details.endId() ?
+                            var phrase = (Unit) (id == details.startId() ?
                                     new SelectedPhrase(id, rawContent) :
                                     new NewPhrase(id, size, rawContent));
                             downstream.push(phrase);

@@ -22,15 +22,15 @@ public class Processor {
                         Arrays.stream((wordText.substring(0, wordText.lastIndexOf("\n") + 1) + " " + wordText.substring(wordText.lastIndexOf("\n") + 1)).split(" ")) :
                         Stream.of(wordText))
                 .gather(gatherers.mapWords(details.translatedPhrases()))
-                .peek(System.out::println)
                 .gather(gatherers.allocatePhrases(details.translatedPhrases()))
                 .gather(gatherers.mapWordTranslations(details.translatedWords()))
+                .gather(gatherers.cleanupIds())
                 .gather(switch (details.selectionStrategy()){
                     case NoSelection _ -> gatherers.doNothing();
                     case PhraseSelection phraseSelection -> gatherers.allocateSelectedPhrase(phraseSelection);
                     case WordSelection wordSelection -> gatherers.allocateSelectedWord(wordSelection);
                 })
-                .gather(gatherers.cleanupIds())
+//                .gather(gatherers.cleanupIds())
                 .collect(collectors.toParagraphs());
     }
 }

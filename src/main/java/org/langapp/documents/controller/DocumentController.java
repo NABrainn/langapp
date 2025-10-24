@@ -67,7 +67,7 @@ public class DocumentController {
                 "for det vil være", v5,
                 "så tar", v6
         );
-        var conversion = new ConversionDetails(mockContent, new PhraseSelection(137, 139, "jeg for gitt"), mockTranslatedPhrases, mockTranslatedWords);
+        var conversion = new ConversionDetails(mockContent, new PhraseSelection(98, 99, "om de"), mockTranslatedPhrases, mockTranslatedWords);
         var processor = new Processor();
         var units = processor.convertToUnits(conversion);
         var path = "pages/document/document-page.jte";

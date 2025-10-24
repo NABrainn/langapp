@@ -1,4 +1,7 @@
 @import java.util.List
+@import org.langapp.documents.dto.processor.*
+@import org.langapp.documents.dto.processor.TranslatedWord
+@import org.langapp.documents.dto.processor.SelectedWord
 @import org.langapp.documents.dto.processor.Paragraph
 @import org.langapp.documents.dto.processor.Phrase
 @import org.langapp.documents.dto.processor.Word
@@ -23,9 +26,46 @@
                         data-size="${paragraph.size()}">
                             @for(var unit : paragraph.units())
                                 @if(unit instanceof Phrase phrase)
-                                    ${phrase.rawContent()}
+                                    @if(phrase instanceof NewPhrase newPhrase)
+                                        @template.pages.document.phrase(
+                                            id = "unit-" + phrase.id(),
+                                            content = newPhrase.rawContent(),
+                                            className = "new-phrase"
+                                        )
+                                    @elseif(phrase instanceof TranslatedPhrase translatedPhrase)
+                                        @template.pages.document.phrase(
+                                            id = "unit-" + phrase.id(),
+                                            content = translatedPhrase.rawContent(),
+                                            className = "translated-phrase",
+                                            bgc = "var(--recognized)"
+                                        )
+                                    @elseif(phrase instanceof SelectedPhrase selectedPhrase)
+                                        @template.pages.document.phrase(
+                                            id = "unit-" + phrase.id(),
+                                            content = selectedPhrase.rawContent(),
+                                            className = "selected-phrase"
+                                        )
+                                    @endif
                                 @elseif(unit instanceof Word word)
-                                    ${word.rawContent()}
+                                    @if(word instanceof NewWord newWord)
+                                        @template.pages.document.word(
+                                            id = "unit-" + word.id(),
+                                            content = newWord.rawContent(),
+                                            className = "new-word"
+                                        )
+                                    @elseif(word instanceof TranslatedWord translatedWord)
+                                        @template.pages.document.word(
+                                            id = "unit-" + word.id(),
+                                            content = translatedWord.rawContent(),
+                                            className = "translated-word"
+                                        )
+                                    @elseif(word instanceof SelectedWord selectedWord)
+                                        @template.pages.document.word(
+                                            id = "unit-" + word.id(),
+                                            content = selectedWord.rawContent(),
+                                            className = "selected-word"
+                                        )
+                                    @endif
                                 @endif
                             @else
                                 Document has no content

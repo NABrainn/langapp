@@ -38,8 +38,60 @@ body {
           }
 
           & #content {
+
             & .paragraph {
-                margin-bottom: attr(data-size rem)
+                margin-bottom: attr(data-size rem);
+                display: flex;
+                flex-wrap: wrap;
+
+                --new: hsl(from var(--five) h s calc(l - 30));
+                --recognized: hsl(from var(--five) h s calc(l - 22));
+                --familiar: hsl(from var(--five) h s calc(l - 15));
+                --known: var(--five);
+                --ignored: var(--five);
+
+                & .new-word {
+                    padding: 0 0.15em;
+                    background-color: var(--one);
+                    border: 0.1em solid var(--five);
+                    border-radius: 0.25em;
+                    cursor: pointer;
+                }
+                & .translated-word {
+                    padding: 0 0.15em;
+                    background-color: var(--bgc);
+                    border: 0.1em solid var(--five);
+                    border-radius: 0.25em;
+                    cursor: pointer;
+                }
+                & .selected-word {
+                    padding: 0 0.15em;
+                    background-color: var(--four);
+                    border: 0.1em solid var(--five);
+                    border-radius: 0.25em;
+                    cursor: pointer;
+                }
+                & .new-phrase {
+                    padding: 0 0.15em;
+                    background-color: var(--one);
+                    border: 0.1em solid var(--five);
+                    border-radius: 0.25em;
+                    cursor: pointer;
+                }
+                & .translated-phrase {
+                    padding: 0 0.15em;
+                    background-color: attr(data-bgc type(*));
+                    border: 0.1em solid var(--two);
+                    border-radius: 0.25em;
+                    cursor: pointer;
+                }
+                & .selected-phrase {
+                    padding: 0 0.15em;
+                    background-color: var(--four);
+                    border: 0.1em solid var(--five);
+                    border-radius: 0.25em;
+                    cursor: pointer;
+                }
             }
           }
         }
