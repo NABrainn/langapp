@@ -7,9 +7,4 @@ public record SelectedPhrase(int id,
     public SelectedPhrase {
         Objects.requireNonNull(rawContent);
     }
-
-    @Override
-    public Unit withId(int id) {
-        return new SelectedPhrase(id, rawContent);
-    }
 }

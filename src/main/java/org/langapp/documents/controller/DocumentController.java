@@ -17,15 +17,15 @@ public class DocumentController {
     public static void findById(@NotNull Context context) {
         var mockTitle = "Budsjettfloke utløser kravkrig: – Skal rydde opp raskt";
         var mockContent = """
-        Så det du sier er at hvis Arbeiderpartiet nå gir etter for Senterpartiets krav, endrer litt på budsjettet før de setter seg til forhandlingsbordet, så vil dere også kreve det samme?
-        Ja, helt opplagt. Vi har kjempa for hver krone i økning av barnetrygd. Arbeiderpartiet har snakka som om de har gjort det sjøl, og nå kutter de i barnetrygda til de som er aller fattigst.
-        Nå stiller du faktisk et ultimatum og sier at hvis Støre gir etter for Senterparti -krav, før forhandlingene starter, så vil dere også kreve det samme.
+        - Så det du sier er at hvis Arbeiderpartiet nå gir etter for Senterpartiets krav, endrer litt på budsjettet før de setter seg til forhandlingsbordet, så vil dere også kreve det samme?
+        - Ja, helt opplagt. Vi har kjempa for hver krone i økning av barnetrygd. Arbeiderpartiet har snakka som om de har gjort det sjøl, og nå kutter de i barnetrygda til de som er aller fattigst.
+        - Nå stiller du faktisk et ultimatum og sier at hvis Støre gir etter for Senterparti -krav, før forhandlingene starter, så vil dere også kreve det samme.
         
         
         
         
         
-        Dette er bare en naturlig konsekvens, for det vil være helt urimelig om de som roper høyest og stiller seg på sin linje, skal bli hørt. Mens vi ikke skal bli det. Og skal Senterpartiets kutt rettes opp, ja, så tar jeg for gitt at det også gjelder SVs kutt.
+        - Dette er bare en naturlig konsekvens, for det vil være helt urimelig om de som roper høyest og stiller seg på sin linje, skal bli hørt. Mens vi ikke skal bli det. Og skal Senterpartiets kutt rettes opp, ja, så tar jeg for gitt at det også gjelder SVs kutt.
         """;
         var v1 = new Translation(
                 new FromLanguageDetails(Language.NO, "så"),

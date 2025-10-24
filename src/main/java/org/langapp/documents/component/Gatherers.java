@@ -30,7 +30,10 @@ final public class Gatherers {
     public Gatherer<String, WordMapperState, Word> mapWords(Map<String, Translation> translatedPhrases) {
         Supplier<WordMapperState> accumulator = () -> new WordMapperState(new AtomicInteger(), new StringUtil(), translatedPhrases);
         Gatherer.Integrator<WordMapperState, String, Word> integrator = Gatherer.Integrator.of((state, wordStr, downstream) -> {
-            var unit = (Word)(state.isPhrasePart(state.stringUtil().normalized(wordStr)) ?
+            String normalizedWord = state.stringUtil().normalized(wordStr);
+            var unit = (Word) (normalizedWord.isBlank() ?
+                    new InvalidWord(state.atomicInteger().getAndIncrement(), wordStr) :
+                    state.isPhrasePart(normalizedWord) ?
                     new PhrasePart(state.atomicInteger().getAndIncrement(), wordStr) :
                     new Standalone(state.atomicInteger().getAndIncrement(), wordStr));
             return downstream.push(unit);
@@ -94,9 +97,14 @@ final public class Gatherers {
         Gatherer.Integrator<WordTranslationsState, Unit, Unit> integrator = Gatherer.Integrator.of((state, unit, downstream) ->
                 downstream.push(switch (unit) {
                     case Phrase phrase -> phrase;
-                    case Word word -> state.extractTranslation(state.stringUtil().normalized(word.rawContent()))
-                            .map(translation -> (Unit) new TranslatedWord(word.id(), word.rawContent(), translation))
-                            .orElse(new NewWord(word.id(), word.rawContent()));
+                    case Word word -> {
+                        String normalizedWord = state.stringUtil().normalized(word.rawContent());
+                        yield state.extractTranslation(normalizedWord)
+                                .map(translation -> (Unit) new TranslatedWord(word.id(), word.rawContent(), translation))
+                                .orElse(normalizedWord.isBlank() ?
+                                        unit :
+                                        new NewWord(word.id(), word.rawContent()));
+                    }
                 }));
         return Gatherer.ofSequential(accumulator, integrator);
     }
@@ -164,14 +172,5 @@ final public class Gatherers {
         Gatherer.Integrator<Void, Unit, Unit> integrator = Gatherer.Integrator.of((_, element, downstream) ->
                 downstream.push(element));
         return Gatherer.ofSequential(integrator);
-    }
-
-    public Gatherer<Unit, AtomicInteger, Unit> cleanupIds() {
-        Supplier<AtomicInteger> idStore = () -> new AtomicInteger(0);
-        Gatherer.Integrator<AtomicInteger, Unit, Unit> integrator = Gatherer.Integrator.of((state, element, downstream) ->
-                element.id() - state.get() != 1 ?
-                    downstream.push(element.withId(state.getAndIncrement())) :
-                    downstream.push(element));
-        return Gatherer.ofSequential(idStore, integrator);
     }
 }

@@ -9,7 +9,7 @@ import org.langapp.documents.dto.processor.Word;
 @SuppressWarnings("unchecked")
 public final class JtedocumentpageGenerated {
 	public static final String JTE_NAME = "pages/document/document-page.jte";
-	public static final int[] JTE_LINE_INFO = {0,0,1,2,3,4,5,6,8,8,8,8,11,11,13,13,19,19,19,22,22,24,24,24,24,26,26,26,26,26,26,26,26,26,27,27,27,27,28,28,29,29,30,34,35,35,36,41,42,42,43,47,48,48,49,49,50,50,51,55,56,56,57,61,62,62,63,67,68,68,69,69,70,70,70,72,72,74,74,78,78,78,78,78,8,9,9,9,9};
+	public static final int[] JTE_LINE_INFO = {0,0,1,2,3,4,5,6,8,8,8,8,11,11,13,13,19,19,19,22,22,24,24,24,24,26,26,26,26,26,26,26,26,26,27,27,27,27,28,28,29,29,30,34,35,35,36,41,42,42,43,47,48,48,49,49,50,50,51,55,56,56,57,61,62,62,63,67,68,68,69,73,74,74,75,75,76,76,76,78,78,80,80,84,84,84,84,84,8,9,9,9,9};
 	public static void render(gg.jte.html.HtmlTemplateOutput jteOutput, gg.jte.html.HtmlInterceptor jteHtmlInterceptor, String title, List<Paragraph> paragraphs) {
 		jteOutput.writeContent("\n");
 		gg.jte.generated.ondemand.JtebaseGenerated.render(jteOutput, jteHtmlInterceptor, new gg.jte.html.HtmlContent() {
@@ -66,6 +66,10 @@ public final class JtedocumentpageGenerated {
 							} else if (word instanceof SelectedWord selectedWord) {
 								jteOutput.writeContent("\n                                        ");
 								gg.jte.generated.ondemand.pages.document.JtewordGenerated.render(jteOutput, jteHtmlInterceptor, "unit-" + word.id(), selectedWord.rawContent(), "selected-word");
+								jteOutput.writeContent("\n                                    ");
+							} else if (word instanceof InvalidWord invalidWord) {
+								jteOutput.writeContent("\n                                        ");
+								gg.jte.generated.ondemand.pages.document.JtewordGenerated.render(jteOutput, jteHtmlInterceptor, "unit-" + word.id(), invalidWord.rawContent(), "invalid-word");
 								jteOutput.writeContent("\n                                    ");
 							}
 							jteOutput.writeContent("\n                                ");

@@ -65,6 +65,12 @@
                                             content = selectedWord.rawContent(),
                                             className = "selected-word"
                                         )
+                                    @elseif(word instanceof InvalidWord invalidWord)
+                                        @template.pages.document.word(
+                                            id = "unit-" + word.id(),
+                                            content = invalidWord.rawContent(),
+                                            className = "invalid-word"
+                                        )
                                     @endif
                                 @endif
                             @else

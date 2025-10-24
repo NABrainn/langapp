@@ -7,9 +7,4 @@ public record Standalone(int id,
     public Standalone {
         Objects.requireNonNull(rawContent);
     }
-
-    @Override
-    public Word withId(int id) {
-        return new Standalone(id, rawContent);
-    }
 }

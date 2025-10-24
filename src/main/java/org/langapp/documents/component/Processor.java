@@ -24,13 +24,11 @@ public class Processor {
                 .gather(gatherers.mapWords(details.translatedPhrases()))
                 .gather(gatherers.allocatePhrases(details.translatedPhrases()))
                 .gather(gatherers.mapWordTranslations(details.translatedWords()))
-                .gather(gatherers.cleanupIds())
                 .gather(switch (details.selectionStrategy()){
                     case NoSelection _ -> gatherers.doNothing();
                     case PhraseSelection phraseSelection -> gatherers.allocateSelectedPhrase(phraseSelection);
                     case WordSelection wordSelection -> gatherers.allocateSelectedWord(wordSelection);
                 })
-//                .gather(gatherers.cleanupIds())
                 .collect(collectors.toParagraphs());
     }
 }

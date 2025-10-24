@@ -7,9 +7,4 @@ public record NewWord(int id,
     public NewWord {
         Objects.requireNonNull(rawContent);
     }
-
-    @Override
-    public Word withId(int id) {
-        return new NewWord(id, rawContent);
-    }
 }

@@ -71,6 +71,14 @@ body {
                     border-radius: 0.25em;
                     cursor: pointer;
                 }
+                & .invalid-word {
+                    padding: 0 0.15em;
+                    background-color: var(--five);
+                    border: 0.1em solid var(--five);
+                    border-radius: 0.25em;
+                    cursor: default;
+                    pointer-events: none;
+                }
                 & .new-phrase {
                     padding: 0 0.15em;
                     background-color: var(--one);

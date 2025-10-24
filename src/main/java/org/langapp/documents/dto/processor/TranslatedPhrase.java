@@ -11,9 +11,4 @@ public record TranslatedPhrase(int id,
     public TranslatedPhrase {
         Objects.requireNonNull(rawContent);
     }
-
-    @Override
-    public Unit withId(int id) {
-        return new TranslatedPhrase(id, size, rawContent, translation);
-    }
 }
