@@ -28,7 +28,8 @@ void main() {
                     path("/documents", () -> {
                         post(DocumentController::create);
                         path("/{id}", () -> {
-                            get(DocumentController::findById);
+                            get("/reload", DocumentController::findById);
+                            get("/", DocumentController::findById);
                         });
                     });
                 });

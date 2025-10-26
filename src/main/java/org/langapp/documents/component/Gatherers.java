@@ -140,7 +140,8 @@ final public class Gatherers {
                             downstream.push(phrase);
                 }
                 case Word word -> {
-                    if(state.inRange(word.id(), IntStream.range(details.startId(), details.endId()))) {
+                    if(state.inRange(word.id(), IntStream.range(details.startId(), details.endId() + 1))) {
+                        System.out.println(word);
                         state.buffer().add(word);
                         if(state.buffer().size() == details.endId() - details.startId() + 1) {
                             var id = state.buffer().getFirst().id();

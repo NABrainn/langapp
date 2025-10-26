@@ -2,76 +2,54 @@ package org.langapp.documents.controller;
 
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
-import org.langapp.documents.component.Processor;
-import org.langapp.documents.dto.processor.ConversionDetails;
+import org.langapp.documents.component.DocumentService;
+import org.langapp.documents.dto.context.DocumentPageContext;
+import org.langapp.documents.dto.processor.selection.NoSelection;
 import org.langapp.documents.dto.processor.selection.PhraseSelection;
+import org.langapp.documents.dto.processor.selection.WordSelection;
 import org.langapp.translations.dto.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class DocumentController {
+
     public static void create(@NotNull Context context) {
         context.render("base.jte", Map.of("base", "base"));
     }
 
     public static void findById(@NotNull Context context) {
+        var selection = switch (context.queryParam("selection")){
+            case "phrase" -> {
+                var startIdParam = context.queryParam("startId");
+                var endIdParam = context.queryParam("endId");
+                var rawContentParam = context.queryParam("rawContent");
+                Objects.requireNonNull(startIdParam);
+                Objects.requireNonNull(endIdParam);
+                Objects.requireNonNull(rawContentParam);
+                var startId = Integer.parseInt(startIdParam);
+                var endId = Integer.parseInt(endIdParam);
+                yield new PhraseSelection(startId, endId, rawContentParam);
+            }
+            case "word" -> {
+                var wordIdParam = context.queryParam("wordId");
+                Objects.requireNonNull(wordIdParam);
+                var wordId = Integer.parseInt(wordIdParam);
+                yield new WordSelection(wordId);
+            }
+            case "none" -> new NoSelection();
+            case null -> new NoSelection();
+            default -> throw new IllegalStateException("Unexpected value: " + context.queryParam("selection"));
+        };
+        var id = Integer.parseInt(context.pathParam("id"));
+        var document = DocumentService.findById(id, selection);
         var mockTitle = "Budsjettfloke utløser kravkrig: – Skal rydde opp raskt";
-        var mockContent = """
-        - Så det du sier er at hvis Arbeiderpartiet nå gir etter for Senterpartiets krav, endrer litt på budsjettet før de setter seg til forhandlingsbordet, så vil dere også kreve det samme?
-        - Ja, helt opplagt. Vi har kjempa for hver krone i økning av barnetrygd. Arbeiderpartiet har snakka som om de har gjort det sjøl, og nå kutter de i barnetrygda til de som er aller fattigst.
-        - Nå stiller du faktisk et ultimatum og sier at hvis Støre gir etter for Senterparti -krav, før forhandlingene starter, så vil dere også kreve det samme.
-        
-        
-        
-        
-        
-        - Dette er bare en naturlig konsekvens, for det vil være helt urimelig om de som roper høyest og stiller seg på sin linje, skal bli hørt. Mens vi ikke skal bli det. Og skal Senterpartiets kutt rettes opp, ja, så tar jeg for gitt at det også gjelder SVs kutt.
-        """;
-        var v1 = new Translation(
-                new FromLanguageDetails(Language.NO, "så"),
-                new ToLanguageDetails(Language.EN, "so"),
-                Level.NEW
-        );
-        var v2 = new Translation(
-                new FromLanguageDetails(Language.NO, "vil"),
-                new ToLanguageDetails(Language.EN, "will"),
-                Level.RECOGNIZED
-        );
-        var v3 = new Translation(
-                new FromLanguageDetails(Language.NO, "stiller"),
-                new ToLanguageDetails(Language.EN, "await"),
-                Level.FAMILIAR
-        );
-        var mockTranslatedWords = Map.of(
-                v1.fromLangDetails().content(), v1,
-                v2.fromLangDetails().content(), v2,
-                v3.fromLangDetails().content(), v3
-        );
-        var v4 = new Translation(
-                new FromLanguageDetails(Language.NO, "så vil"),
-                new ToLanguageDetails(Language.EN, "so will"),
-                Level.RECOGNIZED
-        );
-        var v5 = new Translation(
-                new FromLanguageDetails(Language.NO, "for det vil være"),
-                new ToLanguageDetails(Language.EN, "so that will be"),
-                Level.RECOGNIZED
-        );
-        var v6 = new Translation(
-                new FromLanguageDetails(Language.NO, "så tar"),
-                new ToLanguageDetails(Language.EN, "so takes"),
-                Level.RECOGNIZED
-        );
-        var mockTranslatedPhrases = Map.of(
-                "så vil", v4,
-                "for det vil være", v5,
-                "så tar", v6
-        );
-        var conversion = new ConversionDetails(mockContent, new PhraseSelection(108, 109, "om de"), mockTranslatedPhrases, mockTranslatedWords);
-        var processor = new Processor();
-        var units = processor.convertToUnits(conversion);
-        var path = "pages/document/document-page.jte";
-        var params = Map.of("title", mockTitle, "paragraphs", units);
-        context.render(path, params);
+        var path = switch (document.selectionStrategy()) {
+            case NoSelection _ -> "pages/document/document-page.jte";
+            case PhraseSelection _ -> "pages/document/document-page-content.jte";
+            case WordSelection _ -> "pages/document/document-page-content.jte";
+        };
+        var attributes = Map.of("title", mockTitle, "paragraphs", document.units());
+        context.render(path, attributes);
     }
 }

@@ -21,13 +21,27 @@
         "id": "${id}",
         "to": "${content}"
     }'>
-        ${content}
+        @for(var word : content.split(" "))
+            @template.pages.document.word(
+            id = "",
+            content = word,
+            className = "",
+            fx = false
+            )
+        @endfor
     </div>
 @else
     <div
     id="${id}"
     class="${className}"
     data-bgc="${bgc != null ? bgc : ""}">
-        ${content}
+        @for(var word : content.split(" "))
+            @template.pages.document.word(
+            id = "",
+            content = word,
+            className = "phrase-part",
+            fx = false
+            )
+        @endfor
     </div>
 @endif

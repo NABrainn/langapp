@@ -50,60 +50,41 @@ body {
                 --known: var(--five);
                 --ignored: var(--five);
 
-                & .new-word {
-                    padding: 0 0.1rem;
-                    background-color: var(--one);
-                    border: 0.1rem solid var(--five);
-                    border-radius: 0.2em;
-                    cursor: pointer;
+                & .u {
+                  border-style: solid;
+                  border-width: 1px;
+                  border-radius: 5px;
+                  display: flex;
+                  align-items: center;
+                  padding: 0 2px;
                 }
-                & .translated-word {
-                    padding: 0 0.1rem;
-                    background-color: var(--bgc);
-                    border: 0.1em solid var(--five);
-                    border-radius: 0.2em;
-                    cursor: pointer;
+
+                & .p {
+                  border-color: var(--five);
+                  display: flex;
+                  gap: 6px;
+                  user-select: none;
                 }
-                & .selected-word {
-                    padding: 0 0.1rem;
-                    background-color: var(--four);
-                    border: 0.1rem solid var(--five);
-                    border-radius: 0.2em;
-                    cursor: default;
-                    user-select: none;
+                
+                & .w {
+                  border-color: var(--five);
                 }
-                & .invalid-word {
-                    padding: 0 0.1rem;
-                    background-color: var(--five);
-                    border: 0.1rem solid var(--five);
-                    border-radius: 0.2em;
-                    cursor: default;
-                    pointer-events: none;
-                    user-select: none;
+
+                & .t {
+                  cursor: pointer;
                 }
-                & .new-phrase {
-                    padding: 0 0.15rem;
-                    background-color: var(--one);
-                    border: 0.1rem solid var(--five);
-                    border-radius: 0.2em;
-                    cursor: default;
-                    user-select: none;
+
+                & .n {
+                  background-color: var(--new);
+                  cursor: pointer;
                 }
-                & .translated-phrase {
-                    padding: 0 0.15rem;
-                    background-color: attr(data-bgc type(*));
-                    border: 0.1rem solid var(--two);
-                    border-radius: 0.2em;
-                    cursor: pointer;
-                    user-select: none;
-                }
-                & .selected-phrase {
-                    padding: 0 0.15rem;
-                    background-color: var(--four);
-                    border: 0.1rem solid var(--five);
-                    border-radius: 0.2rem;
-                    cursor: default;
-                    user-select: none;
+
+                & .i {
+                  user-select: none;
+                }         
+                
+                & .s {
+                  background-color: var(--one);
                 }
             }
           }

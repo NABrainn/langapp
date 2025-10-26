@@ -10,12 +10,12 @@ class SelectableDiv extends HTMLDivElement {
     }
     #releaseSelection() {
         const selection = window.getSelection()
-        const anchorId = selection.anchorNode.parentElement.id.substring(5)
-        const focusId = selection.focusNode.parentElement.id.substring(5)
+        const anchorId = selection?.anchorNode?.parentElement?.id?.substring(1) ?? null
+        const focusId = selection?.focusNode?.parentElement?.id?.substring(1) ?? null
         
         const range = (startId, from, to) => Array.from(
             { length: to - from + 1 },
-            (_, i) => document.getElementById(`unit-${Number(startId) + i}`)
+            (_, i) => document.getElementById(`u${Number(startId) + i}`)
         )
         const selectedPhrase = range(anchorId, anchorId, focusId)
         const validate = (phrase) => {
@@ -37,17 +37,18 @@ class SelectableDiv extends HTMLDivElement {
         }
         const { ok, err } = validate(selectedPhrase)
         if(err) {
-            console.error(err)
             return window.getSelection().removeAllRanges()
         }
         const rawContent = ok.map(part => part.innerText).join(' ')
         this.details = {
             startId: anchorId,
             endId: focusId,
-            rawContent: rawContent
+            rawContent: rawContent,
+            selection: 'phrase'
         }
         const event = new Event('selectPhrase')
         document.getElementById('document-page').dispatchEvent(event)
+        return window.getSelection().removeAllRanges()
     }
 }
 customElements.define('selectable-div', SelectableDiv, { extends: 'div' })
