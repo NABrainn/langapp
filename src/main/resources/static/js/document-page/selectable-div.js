@@ -43,6 +43,7 @@ class SelectableDiv extends HTMLDivElement {
         this.details = {
             startId: anchorId,
             endId: focusId,
+            content: rawContent,
             rawContent: rawContent,
             selection: 'phrase'
         }

@@ -4,7 +4,8 @@ import java.util.Objects;
 
 public record NewPhrase(int id,
                         int size,
-                        String rawContent) implements Phrase {
+                        String rawContent,
+                        String content) implements Phrase {
     public NewPhrase {
         Objects.requireNonNull(rawContent);
     }

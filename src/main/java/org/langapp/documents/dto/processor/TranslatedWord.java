@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public record TranslatedWord(int id,
                              String rawContent,
+                             String content,
                              Translation translation) implements Word {
     public TranslatedWord {
         Objects.requireNonNull(rawContent);

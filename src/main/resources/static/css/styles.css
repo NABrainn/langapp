@@ -11,85 +11,169 @@
     color: var(--three)
 }
 body {
-    & #document-page {
-        min-height: 100vh;
-        background-color: var(--four);
-        padding: 4em 0;
+  & #document-page {
+    min-height: 100vh;
+    background-color: var(--four);
+    padding: 4em 0;
 
-        & #document {
-          border-radius: 0.2em;
-          padding: 1em;
-          background-color: var(--five);
-          width: 90%;
-          margin: 0 auto;
-          min-height: 50em;
+    & #document {
+      border-radius: 0.2em;
+      padding: 1em;
+      background-color: var(--five);
+      width: 90%;
+      margin: 0 auto;
+      min-height: 50em;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+
+      @media (min-width: var(--non-mobile)) {
+        width: 60%;
+        min-height: 100em;
+      }
+
+      & #title {
+        font-size: clamp(1.43rem, 1.55vw, 2.5rem);
+        font-weight: bold;
+      }
+
+      & #content {
+        & .paragraph {
+          margin-bottom: attr(data-size rem);
           display: flex;
-          flex-direction: column;
-          gap: 1em;
+          flex-wrap: wrap;
 
-          @media (min-width: var(--non-mobile)) {
-            width: 60%;
-            min-height: 100em;
+          --new: hsl(from var(--five) h s calc(l - 30));
+          --recognized: hsl(from var(--five) h s calc(l - 22));
+          --familiar: hsl(from var(--five) h s calc(l - 15));
+          --known: var(--five);
+          --ignored: var(--five);
+
+          & .u {
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            padding: 0 2px;
           }
 
-          & #title {
-            font-size: clamp(1.43rem, 1.55vw, 2.5rem);
-            font-weight: bold;
-          }
+          & .p {
+            position: relative;
+            border-color: var(--five);
+            display: flex;
+            gap: 6px;
+            position: relative;
+            user-select: none;
 
-          & #content {
+            & .f {
+              display: flex;
+              flex-direction: column;
+              gap: 0.6em;
+              position: absolute;
+              top: 0;
+              right: 10px;
+              z-index: 2;
+              top: 2em;
+              right: 0;
+              min-height: 4rem;
+              padding: 1em;
+              background-color: var(--four);
+              border-radius: 5px;
 
-            & .paragraph {
-                margin-bottom: attr(data-size rem);
+              & #toWordList {
                 display: flex;
-                flex-wrap: wrap;
-
-                --new: hsl(from var(--five) h s calc(l - 30));
-                --recognized: hsl(from var(--five) h s calc(l - 22));
-                --familiar: hsl(from var(--five) h s calc(l - 15));
-                --known: var(--five);
-                --ignored: var(--five);
-
-                & .u {
-                  border-style: solid;
-                  border-width: 1px;
+                gap: 0.5em;
+              }
+              & #levels {
+                display: flex;
+                justify-content: space-around;
+                user-select: none;
+                & .next, & .selected {
+                  padding: 0 0.5em;
                   border-radius: 5px;
-                  display: flex;
-                  align-items: center;
-                  padding: 0 2px;
                 }
-
-                & .p {
-                  border-color: var(--five);
-                  display: flex;
-                  gap: 6px;
-                  user-select: none;
-                }
-                
-                & .w {
-                  border-color: var(--five);
-                }
-
-                & .t {
-                  cursor: pointer;
-                }
-
-                & .n {
-                  background-color: var(--new);
-                  cursor: pointer;
-                }
-
-                & .i {
-                  user-select: none;
-                }         
-                
-                & .s {
+                & .next {
                   background-color: var(--one);
+                  cursor: pointer;
                 }
+                & .selected {
+                  background-color: var(--twol);
+                }
+              }
             }
           }
+                
+          & .w {
+            border-color: var(--five);
+            position: relative;
+
+            & .f {
+              display: flex;
+              flex-direction: column;
+              position: absolute;
+              top: 0;
+              right: 10px;
+              gap: 0.6em;
+              z-index: 2;
+              top: 2em;
+              right: 0;
+              min-height: 4rem;
+              padding: 1em;
+              background-color: var(--four);
+              border-radius: 5px;
+
+              & #toWordList {
+                display: flex;
+                gap: 0.5em;
+              }
+              & #levels {
+                display: flex;
+                justify-content: space-around;
+                user-select: none;
+                & .next, & .selected {
+                  padding: 0 0.5em;
+                  border-radius: 5px;
+                }
+                & .next {
+                  background-color: var(--one);
+                  cursor: pointer;
+                }
+                & .selected {
+                  background-color: var(--two);
+                }
+              }
+            }
+          }
+
+          & .t {
+            cursor: pointer;
+          }
+
+          & .n {
+            background-color: var(--new);
+            cursor: pointer;
+          }
+
+          & .i {
+            user-select: none;
+          }         
+                  
+          & .s {
+            background-color: var(--one);
+          }
         }
+        & .translation-form {
+          background-color: var(--four);
+          max-width: 20%;
+          border: 4px solid var(--four);
+          border-radius: 4px;
+          display: flex;
+          flex-direction: column;
+        }
+      }
     }
+  }
 }
 
 /* 1. Use a more-intuitive box-sizing model */

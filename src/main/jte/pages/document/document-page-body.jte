@@ -1,10 +1,12 @@
 @import java.util.List
 @import org.langapp.documents.dto.processor.*
 @import org.langapp.documents.dto.processor.Paragraph
+@import org.langapp.documents.dto.processor.selection.SelectionStrategy
 
-@param int documentId = 1
+@param int documentId
 @param String title
 @param List<Paragraph> paragraphs
+@param SelectionStrategy selection
 
 <div
 fx-method="GET"
@@ -18,6 +20,6 @@ is="selectable-div">
     id="document">
         <span
         id="title">${title}</span>
-        @template.pages.document.document-page-content(title = title, paragraphs = paragraphs)
+        @template.pages.document.document-page-content(documentId = documentId, title = title, paragraphs = paragraphs, selection = selection)
     </div>
 </div>

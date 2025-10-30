@@ -2,6 +2,7 @@ import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.rendering.template.JavalinJte;
 import org.langapp.documents.controller.DocumentController;
+import org.langapp.documents.controller.TranslationController;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -31,6 +32,12 @@ void main() {
                             get("/reload", DocumentController::findById);
                             get("/", DocumentController::findById);
                         });
+                    });
+                    path("/translations", () -> {
+                        get(TranslationController::translationList);
+                        get("/wordForm", TranslationController::wordTranslationForm);
+                        get("/phraseForm", TranslationController::phraseTranslationForm);
+                        put("/level", TranslationController::updateLevel);
                     });
                 });
             })

@@ -7,6 +7,7 @@
 @param String fxAction = null
 @param String fxTarget = null
 @param String fxSwap = null
+@param gg.jte.Content form = null
 
 @if(fx)
     <div
@@ -14,17 +15,16 @@
     class="${className}"
     fx-method="${fxMethod != null ? fxMethod : ""}"
     fx-action="${fxAction != null ? fxAction : ""}"
-    fx-target="${fxTarget != null ? fxTarget : ""}"
-    fx-vals='{
-        "id": "${id}",
-        "to": "${content}"
-    }'>
+    fx-target="${fxTarget != null ? fxTarget : ""}">
         ${content}
     </div>
 @else
     <div
     id="${id}"
     class="${className}">
-        ${content}
+        <span>${content}</span>
+        @if(form != null)
+            ${form}
+        @endif
     </div>
 @endif

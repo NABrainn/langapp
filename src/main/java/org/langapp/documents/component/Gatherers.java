@@ -33,10 +33,10 @@ final public class Gatherers {
         Gatherer.Integrator<WordMapperState, String, Word> integrator = Gatherer.Integrator.of((state, wordStr, downstream) -> {
             String normalizedWord = state.stringUtil().normalized(wordStr);
             var unit = (Word) (normalizedWord.isBlank() ?
-                    new InvalidWord(state.atomicInteger().getAndIncrement(), wordStr) :
+                    new InvalidWord(state.atomicInteger().getAndIncrement(), wordStr, normalizedWord) :
                     state.isPhrasePart(normalizedWord) ?
-                    new PhrasePart(state.atomicInteger().getAndIncrement(), wordStr) :
-                    new Standalone(state.atomicInteger().getAndIncrement(), wordStr));
+                    new PhrasePart(state.atomicInteger().getAndIncrement(), wordStr, normalizedWord) :
+                    new Standalone(state.atomicInteger().getAndIncrement(), wordStr, normalizedWord));
             return downstream.push(unit);
         });
         return Gatherer.ofSequential(accumulator, integrator);
@@ -70,7 +70,8 @@ final public class Gatherers {
                             .map(Unit::rawContent)
                             .toList());
                     var size = state.buffer().size();
-                    var phrase = new TranslatedPhrase(id, size, rawContent, phraseTranslation);
+                    var content = state.stringUtil.normalized(rawContent);
+                    var phrase = new TranslatedPhrase(id, size, rawContent, content, phraseTranslation);
                     downstream.push(phrase);
                     state.buffer().clear();
                 }
@@ -101,10 +102,10 @@ final public class Gatherers {
                     case Word word -> {
                         String normalizedWord = state.stringUtil().normalized(word.rawContent());
                         yield state.extractTranslation(normalizedWord)
-                                .map(translation -> (Unit) new TranslatedWord(word.id(), word.rawContent(), translation))
+                                .map(translation -> (Unit) new TranslatedWord(word.id(), word.rawContent(), state.stringUtil().normalized(word.rawContent()), translation))
                                 .orElse(normalizedWord.isBlank() ?
                                         unit :
-                                        new NewWord(word.id(), word.rawContent()));
+                                        new NewWord(word.id(), word.rawContent(), state.stringUtil().normalized(word.rawContent())));
                     }
                 }));
         return Gatherer.ofSequential(accumulator, integrator);
@@ -114,7 +115,7 @@ final public class Gatherers {
         Objects.requireNonNull(details);
         Gatherer.Integrator<Void, Unit, Unit> integrator = ((_, unit, downstream) ->
                 unit.id() == details.wordId() ?
-                        downstream.push(new SelectedWord(unit.id(), unit.rawContent())) :
+                        downstream.push(new SelectedWord(unit.id(), unit.rawContent(), unit.content())) :
                         downstream.push(unit)
         );
         return Gatherer.ofSequential(integrator);
@@ -136,19 +137,19 @@ final public class Gatherers {
             switch (element) {
                 case Phrase phrase -> {
                     return phrase.id() == details.startId() ?
-                            downstream.push(new SelectedPhrase(phrase.id(), phrase.rawContent())) :
+                            downstream.push(new SelectedPhrase(phrase.id(), phrase.rawContent(), phrase.content())) :
                             downstream.push(phrase);
                 }
                 case Word word -> {
                     if(state.inRange(word.id(), IntStream.range(details.startId(), details.endId() + 1))) {
-                        System.out.println(word);
                         state.buffer().add(word);
                         if(state.buffer().size() == details.endId() - details.startId() + 1) {
                             var id = state.buffer().getFirst().id();
                             var rawContent = String.join(" ", state.buffer().stream()
                                     .map(Unit::rawContent)
                                     .toList());
-                            var phrase = (Unit) (new SelectedPhrase(id, rawContent));
+                            var content = state.stringUtil().normalized(rawContent);
+                            var phrase = (Unit) (new SelectedPhrase(id, rawContent, content));
                             downstream.push(phrase);
                             state.buffer().clear();
                         }
@@ -167,9 +168,10 @@ final public class Gatherers {
                                         .map(Unit::rawContent)
                                         .toList());
                                 var size = state.buffer().size();
+                                var content = state.stringUtil().normalized(rawContent);
                                 var phrase = (Unit) (id == details.startId() ?
-                                        new SelectedPhrase(id, rawContent) :
-                                        new NewPhrase(id, size, rawContent));
+                                        new SelectedPhrase(id, rawContent, content) :
+                                        new NewPhrase(id, size, rawContent, content));
                                 downstream.push(phrase);
                                 state.buffer().clear();
                             }

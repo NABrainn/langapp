@@ -7,6 +7,7 @@ import java.util.Objects;
 public record TranslatedPhrase(int id,
                                int size,
                                String rawContent,
+                               String content,
                                Translation translation) implements Phrase {
     public TranslatedPhrase {
         Objects.requireNonNull(rawContent);

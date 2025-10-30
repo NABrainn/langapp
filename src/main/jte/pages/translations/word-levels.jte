@@ -1,0 +1,66 @@
+@param int documentId
+@param String fromWord
+@param boolean reloading
+@param int currentId
+!{java.util.function.IntFunction<String> style = (id) -> id == currentId ? "selected" : "next";}
+@if(reloading)
+    <div
+    id="levels"
+    fx-action="/documents/${documentId}/reload?selection=word&content=${fromWord}"
+    fx-trigger="fx:inited">
+        <span
+        class="${style.apply(1)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=1&selection=word">1</span>
+        <span
+        class="${style.apply(2)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=2&selection=word">2</span>
+        <span
+        class="${style.apply(3)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=3&selection=word">3</span>
+        <span
+        class="${style.apply(4)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=4&selection=word">4</span>
+        <span
+        class="${style.apply(5)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=5&selection=word">5</span>
+    </div>
+@else
+    <div
+    id="levels">
+        <span
+        class="${style.apply(1)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=1&selection=word">1</span>
+        <span
+        class="${style.apply(2)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=2&selection=word">2</span>
+        <span
+        class="${style.apply(3)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=3&selection=word">3</span>
+        <span
+        class="${style.apply(4)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=4&selection=word">4</span>
+        <span
+        class="${style.apply(5)}"
+        fx-method="PUT"
+        fx-target="#levels"
+        fx-action="/translations/level?content=${fromWord}&nextLevel=5&selection=word">5</span>
+    </div>
+@endif
