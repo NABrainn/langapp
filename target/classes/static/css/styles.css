@@ -65,17 +65,14 @@ body {
             gap: 6px;
             position: relative;
             user-select: none;
-          }
-                
-          & .w {
-            border-color: var(--five);
-            position: relative;
 
             & .f {
               display: flex;
               flex-direction: column;
               gap: 0.6em;
               position: absolute;
+              top: 0;
+              right: 10px;
               z-index: 2;
               top: 2em;
               right: 0;
@@ -102,6 +99,48 @@ body {
                 }
                 & .selected {
                   background-color: var(--twol);
+                }
+              }
+            }
+          }
+                
+          & .w {
+            border-color: var(--five);
+            position: relative;
+
+            & .f {
+              display: flex;
+              flex-direction: column;
+              position: absolute;
+              top: 0;
+              right: 10px;
+              gap: 0.6em;
+              z-index: 2;
+              top: 2em;
+              right: 0;
+              min-height: 4rem;
+              padding: 1em;
+              background-color: var(--four);
+              border-radius: 5px;
+
+              & #toWordList {
+                display: flex;
+                gap: 0.5em;
+              }
+              & #levels {
+                display: flex;
+                justify-content: space-around;
+                user-select: none;
+                & .next, & .selected {
+                  padding: 0 0.5em;
+                  border-radius: 5px;
+                }
+                & .next {
+                  background-color: var(--one);
+                  cursor: pointer;
+                }
+                & .selected {
+                  background-color: var(--two);
                 }
               }
             }

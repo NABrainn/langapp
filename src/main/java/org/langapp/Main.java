@@ -7,22 +7,20 @@ import org.langapp.documents.controller.TranslationController;
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 void main() {
-    final var OPT_PORT_STRING = Optional.ofNullable(System.getenv("PORT"));
-    final var PORT_INT = OPT_PORT_STRING
+    final var PORT = Optional.ofNullable(System.getenv("PORT"))
             .map(Integer::parseInt)
             .orElse(8080);
-    final var OPT_ENV = Optional.ofNullable(System.getenv("ENV"));
-    final var STATIC_PATH = OPT_ENV
+    final var STATIC_FILE_PATH = Optional.ofNullable(System.getenv("ENV"))
             .filter(env -> env.equals("PROD"))
             .map(_ -> "/static")
             .orElse("/home/nabrain/projects/java/langapp/src/main/resources/static");
-    final var LOCATION = OPT_ENV
+    final var STATIC_FILE_LOCATION = Optional.ofNullable(System.getenv("ENV"))
             .filter(env -> env.equals("PROD"))
             .map(_ -> Location.CLASSPATH)
             .orElse(Location.EXTERNAL);
     final var GZIP_LEVEL = 6;
     var app = Javalin.create(config -> {
-                config.staticFiles.add(STATIC_PATH, LOCATION);
+                config.staticFiles.add(STATIC_FILE_PATH, STATIC_FILE_LOCATION);
                 config.fileRenderer(new JavalinJte());
                 config.http.gzipOnlyCompression(GZIP_LEVEL);
                 config.router.apiBuilder(() -> {
@@ -41,5 +39,5 @@ void main() {
                     });
                 });
             })
-            .start(PORT_INT);
+            .start(PORT);
 }

@@ -4,7 +4,6 @@ import org.langapp.documents.dto.processor.Paragraph;
 import org.langapp.documents.dto.processor.Unit;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;

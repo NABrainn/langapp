@@ -1,0 +1,36 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: "lang_db"
+    ports:
+      - "5450:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - postgres-network
+  omnidb:
+    container_name: omnidb
+    image: taivokasper/omnidb:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - omnidb_data:/etc/omnidb
+    networks:
+      - postgres-network
+networks:
+  postgres-network:
+    driver: bridge
+volumes:
+  postgres_data:
+    driver: local
+  omnidb_data:
+    driver: local
+

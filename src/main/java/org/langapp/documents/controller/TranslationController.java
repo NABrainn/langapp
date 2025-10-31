@@ -10,21 +10,20 @@ import java.util.Objects;
 
 public class TranslationController {
     public static void wordTranslationForm(@NotNull Context context) {
-        var idParam = Objects.requireNonNull(context.queryParam("id"));
-        var fromWordParam = Objects.requireNonNull(context.queryParam("fromWord"));
-        var id = Integer.parseInt(idParam);
+        var id = Integer.parseInt(Objects.requireNonNull(context.queryParam("id")));
+        var fromWord = Objects.requireNonNull(context.queryParam("fromWord"));
+
         var path = "pages/translations/word-word-translation-form.jte";
-        var attributes = Map.of("selection", new WordSelection(id, fromWordParam));
+        var attributes = Map.of("selection", new WordSelection(id, fromWord));
         context.render(path, attributes);
     }
     public static void phraseTranslationForm(@NotNull Context context) {
-        var startIdParam = Objects.requireNonNull(context.queryParam("startId"));
-        var endIdParam = Objects.requireNonNull(context.queryParam("endId"));
-        var fromWordParam = Objects.requireNonNull(context.queryParam("fromPhrase"));
-        var startId = Integer.parseInt(startIdParam);
-        var endId = Integer.parseInt(endIdParam);
+        var fromWord = Objects.requireNonNull(context.queryParam("fromPhrase"));
+        var startId = Integer.parseInt(Objects.requireNonNull(context.queryParam("startId")));
+        var endId = Integer.parseInt(Objects.requireNonNull(context.queryParam("endId")));
+
         var path = "pages/translations/phrase-word-translation-form.jte";
-        var attributes = Map.of("selection", new PhraseSelection(startId, endId, fromWordParam, fromWordParam));
+        var attributes = Map.of("selection", new PhraseSelection(startId, endId, fromWord, fromWord));
         context.render(path, attributes);
     }
     public static void translationList(@NotNull Context context) {
@@ -33,11 +32,12 @@ public class TranslationController {
     }
 
     public static void updateLevel(@NotNull Context context) {
-        String selectionParam = Objects.requireNonNull(context.queryParam("selection"));
-        String documentIdParam = Objects.requireNonNull(context.queryParam("documentId"));
-        String contentParam = Objects.requireNonNull(context.queryParam("content"));
-        String nextLevelParam = Objects.requireNonNull(context.queryParam("nextLevel"));
-        var selection = switch (selectionParam) {
+        var selection = Objects.requireNonNull(context.queryParam("selection"));
+        var documentId = Integer.parseInt(Objects.requireNonNull(context.queryParam("documentId")));
+        var contentParam = Objects.requireNonNull(context.queryParam("content"));
+        var nextLevel = Integer.parseInt(Objects.requireNonNull(context.queryParam("nextLevel")));
+
+        var selectionStrategy = switch (selection) {
             case "word" -> {
                 var wordId = Integer.parseInt(Objects.requireNonNull(context.queryParam("wordId")));
                 yield new WordSelection(wordId, contentParam);
@@ -45,19 +45,16 @@ public class TranslationController {
             case "phrase" ->  {
                 var startId = Integer.parseInt(Objects.requireNonNull(context.queryParam("startId")));
                 var endId = Integer.parseInt(Objects.requireNonNull(context.queryParam("endId")));
-                var rawContent = Objects.requireNonNull("rawContent");
+                var rawContent = Objects.requireNonNull(context.queryParam("rawContent"));
                 yield new PhraseSelection(startId, endId, contentParam, rawContent);
             }
-            default -> throw new IllegalStateException("Unexpected value: " + selectionParam);
+            default -> throw new IllegalStateException("Unexpected value: " + selection);
         };
 
-
-        var documentId = Integer.parseInt(documentIdParam);
-        var nextLevel = Integer.parseInt(nextLevelParam);
         var path = "pages/translations/levels.jte";
         var attributes = Map.of(
                 "documentId", documentId,
-                "selection", selection,
+                "selection", selectionStrategy,
                 "reloading", true,
                 "currentLevel", nextLevel
         );

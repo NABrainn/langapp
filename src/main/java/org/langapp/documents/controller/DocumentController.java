@@ -20,28 +20,25 @@ public class DocumentController {
     public static void findById(@NotNull Context context) {
         var selection = switch (context.queryParam("selection")){
             case "phrase" -> {
-                var startIdParam = Objects.requireNonNull(context.queryParam("startId"));
-                var endIdParam = Objects.requireNonNull(context.queryParam("endId"));
+                var startId = Integer.parseInt(Objects.requireNonNull(context.queryParam("startId")));
+                var endId = Integer.parseInt(Objects.requireNonNull(context.queryParam("endId")));
                 var contentParam = Objects.requireNonNull(context.queryParam("content"));
                 var rawContentParam = Objects.requireNonNull(context.queryParam("rawContent"));
 
-                var startId = Integer.parseInt(startIdParam);
-                var endId = Integer.parseInt(endIdParam);
                 yield new PhraseSelection(startId, endId, contentParam, rawContentParam);
             }
             case "word" -> {
-                var wordIdParam = Objects.requireNonNull(context.queryParam("wordId"));
-                var wordContentParam = Objects.requireNonNull(context.queryParam("content"));
+                var wordId = Integer.parseInt(Objects.requireNonNull(context.queryParam("wordId")));
+                var content = Objects.requireNonNull(context.queryParam("content"));
 
-                var wordId = Integer.parseInt(wordIdParam);
-                yield new WordSelection(wordId, wordContentParam);
+                yield new WordSelection(wordId, content);
             }
             case "none" -> new NoSelection();
             case null -> new NoSelection();
             default -> throw new IllegalStateException("Unexpected value: " + context.queryParam("selection"));
         };
-        var id = Integer.parseInt(context.pathParam("id"));
-        var document = DocumentService.findById(id, selection);
+        var documentId = Integer.parseInt(context.pathParam("id"));
+        var document = DocumentService.findById(documentId, selection);
         var mockTitle = "Budsjettfloke utløser kravkrig: – Skal rydde opp raskt";
         switch (document.selectionStrategy()) {
             case NoSelection noSelection -> {
