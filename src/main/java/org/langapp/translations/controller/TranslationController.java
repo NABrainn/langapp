@@ -1,4 +1,4 @@
-package org.langapp.documents.controller;
+package org.langapp.translations.controller;
 
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
