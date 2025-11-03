@@ -3,6 +3,7 @@ import io.javalin.http.staticfiles.Location;
 import io.javalin.rendering.template.JavalinJte;
 import org.langapp.documents.controller.DocumentController;
 import org.langapp.documents.controller.TranslationController;
+import org.langapp.users.controller.UserController;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -13,7 +14,7 @@ void main() {
     final var STATIC_FILE_PATH = Optional.ofNullable(System.getenv("ENV"))
             .filter(env -> env.equals("PROD"))
             .map(_ -> "/static")
-            .orElse("/home/nabrain/projects/java/langapp/src/main/resources/static");
+            .orElse("/home/nabrain/projects/langapp/src/main/resources/static");
     final var STATIC_FILE_LOCATION = Optional.ofNullable(System.getenv("ENV"))
             .filter(env -> env.equals("PROD"))
             .map(_ -> Location.CLASSPATH)
@@ -32,10 +33,13 @@ void main() {
                         });
                     });
                     path("/translations", () -> {
-                        get(TranslationController::translationList);
+                        get("/", TranslationController::translationList);
                         get("/wordForm", TranslationController::wordTranslationForm);
                         get("/phraseForm", TranslationController::phraseTranslationForm);
                         put("/level", TranslationController::updateLevel);
+                    });
+                    path("/users", () -> {
+                        post("/", UserController::create);
                     });
                 });
             })
